@@ -1,0 +1,107 @@
+import { AddressesService } from './addresses.service';
+import { CreateAddressDto, UpdateAddressDto } from './dto/address.dto';
+export declare class AddressesController {
+    private readonly addressesService;
+    constructor(addressesService: AddressesService);
+    create(user: any, createAddressDto: CreateAddressDto): Promise<{
+        id: string;
+        createdAt: Date;
+        updatedAt: Date;
+        address: string;
+        city: string;
+        state: string;
+        latitude: import("@prisma/client/runtime/library").Decimal | null;
+        longitude: import("@prisma/client/runtime/library").Decimal | null;
+        phone: string | null;
+        firstName: string;
+        lastName: string;
+        zipCode: string;
+        country: string;
+        isDefault: boolean;
+        label: string | null;
+        inServiceZone: boolean;
+        userId: string;
+    }>;
+    findAll(user: any): Promise<{
+        id: string;
+        createdAt: Date;
+        updatedAt: Date;
+        address: string;
+        city: string;
+        state: string;
+        latitude: import("@prisma/client/runtime/library").Decimal | null;
+        longitude: import("@prisma/client/runtime/library").Decimal | null;
+        phone: string | null;
+        firstName: string;
+        lastName: string;
+        zipCode: string;
+        country: string;
+        isDefault: boolean;
+        label: string | null;
+        inServiceZone: boolean;
+        userId: string;
+    }[]>;
+    findOne(id: string, user: any): Promise<{
+        id: string;
+        createdAt: Date;
+        updatedAt: Date;
+        address: string;
+        city: string;
+        state: string;
+        latitude: import("@prisma/client/runtime/library").Decimal | null;
+        longitude: import("@prisma/client/runtime/library").Decimal | null;
+        phone: string | null;
+        firstName: string;
+        lastName: string;
+        zipCode: string;
+        country: string;
+        isDefault: boolean;
+        label: string | null;
+        inServiceZone: boolean;
+        userId: string;
+    }>;
+    update(id: string, user: any, updateAddressDto: UpdateAddressDto): Promise<{
+        id: string;
+        createdAt: Date;
+        updatedAt: Date;
+        address: string;
+        city: string;
+        state: string;
+        latitude: import("@prisma/client/runtime/library").Decimal | null;
+        longitude: import("@prisma/client/runtime/library").Decimal | null;
+        phone: string | null;
+        firstName: string;
+        lastName: string;
+        zipCode: string;
+        country: string;
+        isDefault: boolean;
+        label: string | null;
+        inServiceZone: boolean;
+        userId: string;
+    }>;
+    remove(id: string, user: any): Promise<{
+        message: string;
+    }>;
+    setDefault(id: string, user: any): Promise<{
+        id: string;
+        createdAt: Date;
+        updatedAt: Date;
+        address: string;
+        city: string;
+        state: string;
+        latitude: import("@prisma/client/runtime/library").Decimal | null;
+        longitude: import("@prisma/client/runtime/library").Decimal | null;
+        phone: string | null;
+        firstName: string;
+        lastName: string;
+        zipCode: string;
+        country: string;
+        isDefault: boolean;
+        label: string | null;
+        inServiceZone: boolean;
+        userId: string;
+    }>;
+    checkServiceZone(latitude: number, longitude: number): Promise<{
+        inServiceZone: boolean;
+    }>;
+}

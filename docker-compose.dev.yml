@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  # MySQL Database for Development
+  mysql:
+    image: mysql:8.0
+    container_name: flam_mysql_dev
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: flam_db_dev
+      MYSQL_USER: flam_user
+      MYSQL_PASSWORD: flam_password
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_dev_data:/var/lib/mysql
+    networks:
+      - flam_dev_network
+
+  # Redis for Development
+  redis:
+    image: redis:7-alpine
+    container_name: flam_redis_dev
+    restart: unless-stopped
+    ports:
+      - "6380:6379"
+    volumes:
+      - redis_dev_data:/data
+    networks:
+      - flam_dev_network
+
+volumes:
+  mysql_dev_data:
+  redis_dev_data:
+
+networks:
+  flam_dev_network:
+    driver: bridge
