@@ -378,6 +378,11 @@ export class ProductsService {
           brand: true,
           category: true,
           type: true,
+          shopStocks: {
+            include: {
+              shop: true,
+            },
+          },
           reviews: {
             select: {
               rating: true,
@@ -391,17 +396,25 @@ export class ProductsService {
       this.prisma.product.count({ where }),
     ]);
 
-    // Calculate average rating for each product
-    const productsWithRating = products.map(product => ({
-      ...product,
-      averageRating: product.reviews.length > 0
-        ? product.reviews.reduce((sum, review) => sum + review.rating, 0) / product.reviews.length
-        : 0,
-      reviewsCount: product.reviews.length,
-    }));
+    // Calculate statistics for each product
+    const productsWithStats = products.map(product => {
+      const averageRating = product.reviews.length > 0
+        ? Number((product.reviews.reduce((sum, review) => sum + Number(review.rating), 0) / product.reviews.length).toFixed(2))
+        : 0;
+
+      const totalStock = product.shopStocks.reduce((sum, stock) => sum + stock.quantity, 0);
+
+      return {
+        ...product,
+        averageRating,
+        reviewCount: product.reviews.length,
+        totalStock,
+        isInStock: totalStock > 0,
+      };
+    });
 
     return {
-      products: productsWithRating,
+      products: productsWithStats,
       pagination: {
         page,
         limit,
@@ -524,37 +537,231 @@ export class ProductsService {
       where: {
         isActive: true,
         OR: [
-          {
-            brand: {
-              name: {
-                contains: searchTerm,
-              },
+        {
+          brand: {
+            name: {
+              contains: searchTerm,
             },
           },
-          {
-            category: {
-              name: {
-                contains: searchTerm,
-              },
+        },
+        {
+          category: {
+            name: {
+              contains: searchTerm,
             },
           },
-          {
-            type: {
-              name: {
-                contains: searchTerm,
-              },
+        },
+        {
+          type: {
+            name: {
+              contains: searchTerm,
             },
           },
+        },
         ],
       },
       include: {
         brand: true,
         category: true,
         type: true,
+        shopStocks: {
+          include: {
+            shop: true,
+          },
+        },
+        reviews: {
+          select: {
+            rating: true,
+          },
+        },
       },
       take: 20,
+      orderBy: { createdAt: 'desc' },
     });
 
-    return products;
+    // Calculate statistics for each product
+    const productsWithStats = products.map(product => {
+      const reviews = (product as any).reviews || [];
+      const shopStocks = (product as any).shopStocks || [];
+      
+      const averageRating = reviews.length > 0
+        ? Number((reviews.reduce((sum: number, review: any) => sum + Number(review.rating), 0) / reviews.length).toFixed(2))
+        : 0;
+
+      const totalStock = shopStocks.reduce((sum: number, stock: any) => sum + stock.quantity, 0);
+
+      return {
+        ...product,
+        averageRating,
+        reviewCount: reviews.length,
+        totalStock,
+        isInStock: totalStock > 0,
+      };
+    });
+
+    return productsWithStats;
+  }
+
+  // Optimized method to get products with all relations for mobile app
+  async getProductsForMobile(query: ProductQueryDto) {
+    const {
+      brandId,
+      categoryId,
+      typeId,
+      search,
+      page = 1,
+      limit = 20,
+    } = query;
+
+    const skip = (page - 1) * limit;
+
+    const where: any = {
+      isActive: true,
+    };
+
+    if (brandId) {
+      where.brandId = brandId;
+    }
+
+    if (categoryId) {
+      where.categoryId = categoryId;
+    }
+
+    if (typeId) {
+      where.typeId = typeId;
+    }
+
+    if (search) {
+      where.OR = [
+        {
+          brand: {
+            name: {
+              contains: search,
+              mode: 'insensitive',
+            },
+          },
+        },
+        {
+          category: {
+            name: {
+              contains: search,
+              mode: 'insensitive',
+            },
+          },
+        },
+        {
+          type: {
+            name: {
+              contains: search,
+              mode: 'insensitive',
+            },
+          },
+        },
+      ];
+    }
+
+    const [products, total] = await Promise.all([
+      this.prisma.product.findMany({
+        where,
+        include: {
+          brand: {
+            select: {
+              id: true,
+              name: true,
+              logo: true,
+              colors: true,
+              gasColor: true,
+              description: true,
+              hotline: true,
+              website: true,
+            },
+          },
+          category: {
+            select: {
+              id: true,
+              name: true,
+              pricePurchase: true,
+              priceRefill: true,
+              currentName: true,
+              usage: true,
+              size: true,
+              weight: true,
+              unit: true,
+            },
+          },
+          type: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
+          shopStocks: {
+            include: {
+              shop: {
+                select: {
+                  id: true,
+                  name: true,
+                  address: true,
+                  city: true,
+                  state: true,
+                  latitude: true,
+                  longitude: true,
+                  phone: true,
+                  email: true,
+                },
+              },
+            },
+          },
+          reviews: {
+            select: {
+              rating: true,
+            },
+          },
+        },
+        skip,
+        take: limit,
+        orderBy: { createdAt: 'desc' },
+      }),
+      this.prisma.product.count({ where }),
+    ]);
+
+    // Calculate comprehensive statistics for each product
+    const productsWithStats = products.map(product => {
+      const averageRating = product.reviews.length > 0
+        ? Number((product.reviews.reduce((sum, review) => sum + Number(review.rating), 0) / product.reviews.length).toFixed(2))
+        : 0;
+
+      const totalStock = product.shopStocks.reduce((sum, stock) => sum + stock.quantity, 0);
+
+      // Calculate stock by shop for detailed inventory
+      const stockByShop = product.shopStocks.map(stock => ({
+        shopId: stock.shopId,
+        shopName: stock.shop.name,
+        quantity: stock.quantity,
+        shop: stock.shop,
+      }));
+
+      return {
+        ...product,
+        averageRating,
+        reviewCount: product.reviews.length,
+        totalStock,
+        isInStock: totalStock > 0,
+        stockByShop,
+      };
+    });
+
+    return {
+      success: true,
+      data: {
+        products: productsWithStats,
+        pagination: {
+          page,
+          limit,
+          total,
+          pages: Math.ceil(total / limit),
+        },
+      },
+    };
   }
 }

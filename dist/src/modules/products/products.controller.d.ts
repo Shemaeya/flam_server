@@ -304,7 +304,9 @@ export declare class ProductsController {
     findAllProducts(query: ProductQueryDto): Promise<{
         products: {
             averageRating: number;
-            reviewsCount: number;
+            reviewCount: number;
+            totalStock: number;
+            isInStock: boolean;
             brand: {
                 id: string;
                 name: string;
@@ -339,6 +341,29 @@ export declare class ProductsController {
                 createdAt: Date;
                 updatedAt: Date;
             };
+            shopStocks: ({
+                shop: {
+                    id: string;
+                    name: string;
+                    isActive: boolean;
+                    createdAt: Date;
+                    updatedAt: Date;
+                    address: string;
+                    city: string;
+                    state: string;
+                    latitude: import("@prisma/client/runtime/library").Decimal;
+                    longitude: import("@prisma/client/runtime/library").Decimal;
+                    phone: string;
+                    email: string | null;
+                };
+            } & {
+                id: string;
+                createdAt: Date;
+                updatedAt: Date;
+                quantity: number;
+                shopId: string;
+                productId: string;
+            })[];
             reviews: {
                 rating: number;
             }[];
@@ -359,7 +384,101 @@ export declare class ProductsController {
             pages: number;
         };
     }>;
-    searchProducts(searchTerm: string): Promise<({
+    getProductsForMobile(query: ProductQueryDto): Promise<{
+        success: boolean;
+        data: {
+            products: {
+                averageRating: number;
+                reviewCount: number;
+                totalStock: number;
+                isInStock: boolean;
+                stockByShop: {
+                    shopId: string;
+                    shopName: string;
+                    quantity: number;
+                    shop: {
+                        id: string;
+                        name: string;
+                        address: string;
+                        city: string;
+                        state: string;
+                        latitude: import("@prisma/client/runtime/library").Decimal;
+                        longitude: import("@prisma/client/runtime/library").Decimal;
+                        phone: string;
+                        email: string;
+                    };
+                }[];
+                brand: {
+                    id: string;
+                    name: string;
+                    logo: string;
+                    colors: import("@prisma/client/runtime/library").JsonValue;
+                    gasColor: string;
+                    description: string;
+                    hotline: string;
+                    website: string;
+                };
+                category: {
+                    id: string;
+                    name: string;
+                    pricePurchase: import("@prisma/client/runtime/library").Decimal;
+                    priceRefill: import("@prisma/client/runtime/library").Decimal;
+                    currentName: string;
+                    usage: string;
+                    size: string;
+                    weight: import("@prisma/client/runtime/library").Decimal;
+                    unit: string;
+                };
+                type: {
+                    id: string;
+                    name: string;
+                };
+                shopStocks: ({
+                    shop: {
+                        id: string;
+                        name: string;
+                        address: string;
+                        city: string;
+                        state: string;
+                        latitude: import("@prisma/client/runtime/library").Decimal;
+                        longitude: import("@prisma/client/runtime/library").Decimal;
+                        phone: string;
+                        email: string;
+                    };
+                } & {
+                    id: string;
+                    createdAt: Date;
+                    updatedAt: Date;
+                    quantity: number;
+                    shopId: string;
+                    productId: string;
+                })[];
+                reviews: {
+                    rating: number;
+                }[];
+                id: string;
+                isActive: boolean;
+                createdAt: Date;
+                updatedAt: Date;
+                rating: import("@prisma/client/runtime/library").Decimal;
+                imageUrl: string | null;
+                brandId: string;
+                categoryId: string;
+                typeId: string;
+            }[];
+            pagination: {
+                page: number;
+                limit: number;
+                total: number;
+                pages: number;
+            };
+        };
+    }>;
+    searchProducts(searchTerm: string): Promise<{
+        averageRating: number;
+        reviewCount: any;
+        totalStock: any;
+        isInStock: boolean;
         brand: {
             id: string;
             name: string;
@@ -394,7 +513,32 @@ export declare class ProductsController {
             createdAt: Date;
             updatedAt: Date;
         };
-    } & {
+        shopStocks: ({
+            shop: {
+                id: string;
+                name: string;
+                isActive: boolean;
+                createdAt: Date;
+                updatedAt: Date;
+                address: string;
+                city: string;
+                state: string;
+                latitude: import("@prisma/client/runtime/library").Decimal;
+                longitude: import("@prisma/client/runtime/library").Decimal;
+                phone: string;
+                email: string | null;
+            };
+        } & {
+            id: string;
+            createdAt: Date;
+            updatedAt: Date;
+            quantity: number;
+            shopId: string;
+            productId: string;
+        })[];
+        reviews: {
+            rating: number;
+        }[];
         id: string;
         isActive: boolean;
         createdAt: Date;
@@ -404,7 +548,7 @@ export declare class ProductsController {
         brandId: string;
         categoryId: string;
         typeId: string;
-    })[]>;
+    }[]>;
     findProductById(id: string): Promise<{
         averageRating: number;
         reviewsCount: number;

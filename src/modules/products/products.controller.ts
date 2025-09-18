@@ -195,6 +195,13 @@ export class ProductsController {
     return this.productsService.findAllProducts(query);
   }
 
+  @Get('mobile')
+  @ApiOperation({ summary: 'Get products optimized for mobile app with all relations' })
+  @ApiResponse({ status: 200, description: 'Products with relations retrieved successfully' })
+  async getProductsForMobile(@Query() query: ProductQueryDto) {
+    return this.productsService.getProductsForMobile(query);
+  }
+
   @Get('search')
   @ApiOperation({ summary: 'Search products' })
   @ApiResponse({ status: 200, description: 'Search results retrieved successfully' })

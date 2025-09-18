@@ -73,6 +73,9 @@ let ProductsController = class ProductsController {
     async findAllProducts(query) {
         return this.productsService.findAllProducts(query);
     }
+    async getProductsForMobile(query) {
+        return this.productsService.getProductsForMobile(query);
+    }
     async searchProducts(searchTerm) {
         return this.productsService.searchProducts(searchTerm);
     }
@@ -283,6 +286,15 @@ __decorate([
     __metadata("design:paramtypes", [product_dto_1.ProductQueryDto]),
     __metadata("design:returntype", Promise)
 ], ProductsController.prototype, "findAllProducts", null);
+__decorate([
+    (0, common_1.Get)('mobile'),
+    (0, swagger_1.ApiOperation)({ summary: 'Get products optimized for mobile app with all relations' }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'Products with relations retrieved successfully' }),
+    __param(0, (0, common_1.Query)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [product_dto_1.ProductQueryDto]),
+    __metadata("design:returntype", Promise)
+], ProductsController.prototype, "getProductsForMobile", null);
 __decorate([
     (0, common_1.Get)('search'),
     (0, swagger_1.ApiOperation)({ summary: 'Search products' }),

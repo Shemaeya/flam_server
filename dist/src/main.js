@@ -4,10 +4,16 @@ const core_1 = require("@nestjs/core");
 const common_1 = require("@nestjs/common");
 const swagger_1 = require("@nestjs/swagger");
 const app_module_1 = require("./app.module");
+const path_1 = require("path");
+const express = require("express");
 async function bootstrap() {
     const app = await core_1.NestFactory.create(app_module_1.AppModule);
+    app.use('/images', express.static((0, path_1.join)(process.cwd(), 'public', 'images')));
     app.setGlobalPrefix('api/v1', {
-        exclude: [{ path: 'health', method: common_1.RequestMethod.GET }],
+        exclude: [
+            { path: 'health', method: common_1.RequestMethod.GET },
+            { path: 'images', method: common_1.RequestMethod.GET },
+        ],
     });
     app.enableCors({
         origin: process.env.CORS_ORIGIN || 'http://localhost:3000',

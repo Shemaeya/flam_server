@@ -2,13 +2,22 @@ import { NestFactory } from '@nestjs/core';
 import { ValidationPipe, RequestMethod } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
+import { NestExpressApplication } from '@nestjs/platform-express';
+import { join } from 'path';
+import * as express from 'express';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
-  // Set global prefix for all routes (except health check)
+  // Serve static files from public directory using Express
+  app.use('/images', express.static(join(process.cwd(), 'public', 'images')));
+
+  // Set global prefix for all routes (except health check and static files)
   app.setGlobalPrefix('api/v1', {
-    exclude: [{ path: 'health', method: RequestMethod.GET }],
+    exclude: [
+      { path: 'health', method: RequestMethod.GET },
+      { path: 'images', method: RequestMethod.GET },
+    ],
   });
 
   // Enable CORS
