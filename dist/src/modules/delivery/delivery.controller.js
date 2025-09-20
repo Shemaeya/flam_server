@@ -55,6 +55,9 @@ let DeliveryController = class DeliveryController {
     async checkServiceZone(latitude, longitude) {
         return this.deliveryService.checkServiceZone(latitude, longitude);
     }
+    async debugPolygon(latitude, longitude) {
+        return this.deliveryService.debugPolygonDetection(latitude, longitude);
+    }
 };
 exports.DeliveryController = DeliveryController;
 __decorate([
@@ -185,6 +188,15 @@ __decorate([
     __metadata("design:paramtypes", [Number, Number]),
     __metadata("design:returntype", Promise)
 ], DeliveryController.prototype, "checkServiceZone", null);
+__decorate([
+    (0, common_1.Get)('debug-polygon'),
+    (0, swagger_1.ApiOperation)({ summary: 'Debug polygon detection' }),
+    __param(0, (0, common_1.Query)('latitude')),
+    __param(1, (0, common_1.Query)('longitude')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number, Number]),
+    __metadata("design:returntype", Promise)
+], DeliveryController.prototype, "debugPolygon", null);
 exports.DeliveryController = DeliveryController = __decorate([
     (0, swagger_1.ApiTags)('Delivery'),
     (0, common_1.Controller)('delivery'),

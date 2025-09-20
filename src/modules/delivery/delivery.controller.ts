@@ -125,6 +125,7 @@ export class DeliveryController {
     return this.deliveryService.calculateDeliveryPrice(calculateDto);
   }
 
+
   @Get('check-service-zone')
   @ApiOperation({ summary: 'Check if coordinates are in service zone' })
   @ApiResponse({ status: 200, description: 'Service zone status checked' })
@@ -133,5 +134,14 @@ export class DeliveryController {
     @Query('longitude') longitude: number,
   ) {
     return this.deliveryService.checkServiceZone(latitude, longitude);
+  }
+
+  @Get('debug-polygon')
+  @ApiOperation({ summary: 'Debug polygon detection' })
+  async debugPolygon(
+    @Query('latitude') latitude: number,
+    @Query('longitude') longitude: number,
+  ) {
+    return this.deliveryService.debugPolygonDetection(latitude, longitude);
   }
 }

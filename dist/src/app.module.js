@@ -21,6 +21,7 @@ const delivery_module_1 = require("./modules/delivery/delivery.module");
 const notifications_module_1 = require("./modules/notifications/notifications.module");
 const reviews_module_1 = require("./modules/reviews/reviews.module");
 const cart_module_1 = require("./modules/cart/cart.module");
+const currency_module_1 = require("./modules/currency/currency.module");
 const http_exception_filter_1 = require("./common/filters/http-exception.filter");
 const response_interceptor_1 = require("./common/interceptors/response.interceptor");
 let AppModule = class AppModule {
@@ -42,6 +43,7 @@ exports.AppModule = AppModule = __decorate([
             notifications_module_1.NotificationsModule,
             reviews_module_1.ReviewsModule,
             cart_module_1.CartModule,
+            currency_module_1.CurrencyModule,
         ],
         controllers: [health_controller_1.HealthController],
         providers: [

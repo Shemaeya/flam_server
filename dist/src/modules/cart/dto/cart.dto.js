@@ -57,6 +57,11 @@ __decorate([
     (0, class_validator_1.Min)(1),
     __metadata("design:type", Number)
 ], UpdateCartItemDto.prototype, "quantity", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ enum: CartItemType, example: CartItemType.PURCHASE }),
+    (0, class_validator_1.IsEnum)(CartItemType),
+    __metadata("design:type", String)
+], UpdateCartItemDto.prototype, "itemType", void 0);
 class ApplyPromoCodeDto {
 }
 exports.ApplyPromoCodeDto = ApplyPromoCodeDto;

@@ -1,9 +1,15 @@
+export declare enum UserRole {
+    CLIENT = "CLIENT",
+    ADMIN = "ADMIN",
+    DELIVERY = "DELIVERY"
+}
 export declare class RegisterDto {
     email: string;
     firstName: string;
     lastName: string;
     password: string;
     phone?: string;
+    role?: UserRole;
 }
 export declare class LoginDto {
     email: string;
@@ -24,4 +30,13 @@ export declare class VerifyEmailDto {
 }
 export declare class VerifyPhoneDto {
     code: string;
+}
+export declare class ClientRegisterDto extends RegisterDto {
+    role: UserRole;
+}
+export declare class AdminRegisterDto extends RegisterDto {
+    role: UserRole;
+}
+export declare class DeliveryRegisterDto extends RegisterDto {
+    role: UserRole;
 }

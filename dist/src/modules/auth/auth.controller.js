@@ -25,6 +25,15 @@ let AuthController = class AuthController {
     async register(registerDto) {
         return this.authService.register(registerDto);
     }
+    async registerClient(clientRegisterDto) {
+        return this.authService.register(clientRegisterDto);
+    }
+    async registerAdmin(adminRegisterDto) {
+        return this.authService.register(adminRegisterDto);
+    }
+    async registerDelivery(deliveryRegisterDto) {
+        return this.authService.register(deliveryRegisterDto);
+    }
     async login(loginDto) {
         return this.authService.login(loginDto);
     }
@@ -50,7 +59,7 @@ let AuthController = class AuthController {
 exports.AuthController = AuthController;
 __decorate([
     (0, common_1.Post)('register'),
-    (0, swagger_1.ApiOperation)({ summary: 'Register a new user' }),
+    (0, swagger_1.ApiOperation)({ summary: 'Register a new user (generic)' }),
     (0, swagger_1.ApiResponse)({ status: 201, description: 'User successfully registered' }),
     (0, swagger_1.ApiResponse)({ status: 409, description: 'User already exists' }),
     __param(0, (0, common_1.Body)()),
@@ -58,6 +67,36 @@ __decorate([
     __metadata("design:paramtypes", [auth_dto_1.RegisterDto]),
     __metadata("design:returntype", Promise)
 ], AuthController.prototype, "register", null);
+__decorate([
+    (0, common_1.Post)('register/client'),
+    (0, swagger_1.ApiOperation)({ summary: 'Register a new client' }),
+    (0, swagger_1.ApiResponse)({ status: 201, description: 'Client successfully registered' }),
+    (0, swagger_1.ApiResponse)({ status: 409, description: 'User already exists' }),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [auth_dto_1.ClientRegisterDto]),
+    __metadata("design:returntype", Promise)
+], AuthController.prototype, "registerClient", null);
+__decorate([
+    (0, common_1.Post)('register/admin'),
+    (0, swagger_1.ApiOperation)({ summary: 'Register a new admin' }),
+    (0, swagger_1.ApiResponse)({ status: 201, description: 'Admin successfully registered' }),
+    (0, swagger_1.ApiResponse)({ status: 409, description: 'User already exists' }),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [auth_dto_1.AdminRegisterDto]),
+    __metadata("design:returntype", Promise)
+], AuthController.prototype, "registerAdmin", null);
+__decorate([
+    (0, common_1.Post)('register/delivery'),
+    (0, swagger_1.ApiOperation)({ summary: 'Register a new delivery person' }),
+    (0, swagger_1.ApiResponse)({ status: 201, description: 'Delivery person successfully registered' }),
+    (0, swagger_1.ApiResponse)({ status: 409, description: 'User already exists' }),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [auth_dto_1.DeliveryRegisterDto]),
+    __metadata("design:returntype", Promise)
+], AuthController.prototype, "registerDelivery", null);
 __decorate([
     (0, common_1.Post)('login'),
     (0, common_1.HttpCode)(common_1.HttpStatus.OK),

@@ -6,8 +6,10 @@ const prisma = new client_1.PrismaClient();
 async function main() {
     console.log('🌱 Starting database seeding...');
     const brands = await Promise.all([
-        prisma.brand.create({
-            data: {
+        prisma.brand.upsert({
+            where: { name: 'Total' },
+            update: {},
+            create: {
                 name: 'Total',
                 logo: 'https://example.com/logos/total.png',
                 colors: ['red', 'white'],
@@ -17,8 +19,10 @@ async function main() {
                 website: 'https://total.ci',
             },
         }),
-        prisma.brand.create({
-            data: {
+        prisma.brand.upsert({
+            where: { name: 'Oryx' },
+            update: {},
+            create: {
                 name: 'Oryx',
                 logo: 'https://example.com/logos/oryx.png',
                 colors: ['blue', 'white'],
@@ -28,8 +32,10 @@ async function main() {
                 website: 'https://oryx.ci',
             },
         }),
-        prisma.brand.create({
-            data: {
+        prisma.brand.upsert({
+            where: { name: 'Petroci' },
+            update: {},
+            create: {
                 name: 'Petroci',
                 logo: 'https://example.com/logos/petroci.png',
                 colors: ['green', 'white'],
@@ -39,8 +45,10 @@ async function main() {
                 website: 'https://petroci.ci',
             },
         }),
-        prisma.brand.create({
-            data: {
+        prisma.brand.upsert({
+            where: { name: 'Shell' },
+            update: {},
+            create: {
                 name: 'Shell',
                 logo: 'https://example.com/logos/shell.png',
                 colors: ['yellow', 'red'],
@@ -197,30 +205,30 @@ async function main() {
                 name: 'Cocody',
                 basePrice: 2000,
                 pricePerKm: 500,
-                freeDeliveryThreshold: 50000,
+                freeDeliveryThreshold: 25000,
                 supportsUrgentDelivery: true,
                 polygonCoordinates: [
-                    [5.3599, -4.0083],
-                    [5.3600, -4.0084],
-                    [5.3601, -4.0085],
-                    [5.3602, -4.0086],
-                    [5.3599, -4.0083],
+                    [5.4000, -3.9500],
+                    [5.4500, -3.9500],
+                    [5.4500, -4.0500],
+                    [5.4000, -4.0500],
+                    [5.4000, -3.9500]
                 ],
             },
         }),
         prisma.deliveryZone.create({
             data: {
-                name: 'Plateau',
-                basePrice: 1500,
-                pricePerKm: 400,
-                freeDeliveryThreshold: 40000,
+                name: 'Abidjan Centre',
+                basePrice: 2000,
+                pricePerKm: 500,
+                freeDeliveryThreshold: 25000,
                 supportsUrgentDelivery: true,
                 polygonCoordinates: [
-                    [5.3204, -4.0281],
-                    [5.3205, -4.0282],
-                    [5.3206, -4.0283],
-                    [5.3207, -4.0284],
-                    [5.3204, -4.0281],
+                    [5.3000, -3.9500],
+                    [5.4000, -3.9500],
+                    [5.4000, -4.0500],
+                    [5.3000, -4.0500],
+                    [5.3000, -3.9500]
                 ],
             },
         }),
@@ -228,15 +236,15 @@ async function main() {
             data: {
                 name: 'Yopougon',
                 basePrice: 2500,
-                pricePerKm: 600,
-                freeDeliveryThreshold: 60000,
-                supportsUrgentDelivery: false,
+                pricePerKm: 550,
+                freeDeliveryThreshold: 28000,
+                supportsUrgentDelivery: true,
                 polygonCoordinates: [
-                    [5.3214, -4.1234],
-                    [5.3215, -4.1235],
-                    [5.3216, -4.1236],
-                    [5.3217, -4.1237],
-                    [5.3214, -4.1234],
+                    [5.3000, -4.1000],
+                    [5.4000, -4.1000],
+                    [5.4000, -4.2000],
+                    [5.3000, -4.2000],
+                    [5.3000, -4.1000]
                 ],
             },
         }),
@@ -419,6 +427,58 @@ async function main() {
     console.log(`- ${users.length} test users created`);
     console.log(`- ${addresses.length} test addresses created`);
     console.log(`- ${notifications.length} sample notifications created`);
+    console.log('\n💰 Creating default currencies...');
+    const currencies = await Promise.all([
+        prisma.currency.upsert({
+            where: { code: 'FCFA' },
+            update: {},
+            create: {
+                code: 'FCFA',
+                name: 'Franc CFA',
+                symbol: 'FCFA',
+                symbolPosition: 'after',
+                decimalPlaces: 0,
+                thousandsSeparator: ' ',
+                decimalSeparator: ',',
+                exchangeRate: 1.0,
+                isDefault: true,
+                isActive: true,
+            },
+        }),
+        prisma.currency.upsert({
+            where: { code: 'USD' },
+            update: {},
+            create: {
+                code: 'USD',
+                name: 'Dollar US',
+                symbol: '$',
+                symbolPosition: 'before',
+                decimalPlaces: 2,
+                thousandsSeparator: ',',
+                decimalSeparator: '.',
+                exchangeRate: 0.0017,
+                isDefault: false,
+                isActive: true,
+            },
+        }),
+        prisma.currency.upsert({
+            where: { code: 'EUR' },
+            update: {},
+            create: {
+                code: 'EUR',
+                name: 'Euro',
+                symbol: '€',
+                symbolPosition: 'after',
+                decimalPlaces: 2,
+                thousandsSeparator: ' ',
+                decimalSeparator: ',',
+                exchangeRate: 0.0015,
+                isDefault: false,
+                isActive: true,
+            },
+        }),
+    ]);
+    console.log(`✅ ${currencies.length} currencies created`);
     console.log('\n🔑 Test credentials:');
     console.log('- admin@flam.ci / password123');
     console.log('- john@example.com / password123');

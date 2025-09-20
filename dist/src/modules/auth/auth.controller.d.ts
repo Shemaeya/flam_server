@@ -1,5 +1,5 @@
 import { AuthService } from './auth.service';
-import { RegisterDto, LoginDto, RefreshTokenDto, ForgotPasswordDto, ResetPasswordDto, VerifyEmailDto, VerifyPhoneDto } from './dto/auth.dto';
+import { RegisterDto, LoginDto, RefreshTokenDto, ForgotPasswordDto, ResetPasswordDto, VerifyEmailDto, VerifyPhoneDto, ClientRegisterDto, AdminRegisterDto, DeliveryRegisterDto } from './dto/auth.dto';
 export declare class AuthController {
     private readonly authService;
     constructor(authService: AuthService);
@@ -13,6 +13,52 @@ export declare class AuthController {
             email: string;
             firstName: string;
             lastName: string;
+            role: import(".prisma/client").$Enums.UserRole;
+            isEmailVerified: boolean;
+            isPhoneVerified: boolean;
+        };
+    }>;
+    registerClient(clientRegisterDto: ClientRegisterDto): Promise<{
+        accessToken: string;
+        refreshToken: string;
+        user: {
+            id: string;
+            createdAt: Date;
+            phone: string;
+            email: string;
+            firstName: string;
+            lastName: string;
+            role: import(".prisma/client").$Enums.UserRole;
+            isEmailVerified: boolean;
+            isPhoneVerified: boolean;
+        };
+    }>;
+    registerAdmin(adminRegisterDto: AdminRegisterDto): Promise<{
+        accessToken: string;
+        refreshToken: string;
+        user: {
+            id: string;
+            createdAt: Date;
+            phone: string;
+            email: string;
+            firstName: string;
+            lastName: string;
+            role: import(".prisma/client").$Enums.UserRole;
+            isEmailVerified: boolean;
+            isPhoneVerified: boolean;
+        };
+    }>;
+    registerDelivery(deliveryRegisterDto: DeliveryRegisterDto): Promise<{
+        accessToken: string;
+        refreshToken: string;
+        user: {
+            id: string;
+            createdAt: Date;
+            phone: string;
+            email: string;
+            firstName: string;
+            lastName: string;
+            role: import(".prisma/client").$Enums.UserRole;
             isEmailVerified: boolean;
             isPhoneVerified: boolean;
         };

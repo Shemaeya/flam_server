@@ -1,5 +1,11 @@
-import { IsEmail, IsString, MinLength, IsOptional } from 'class-validator';
+import { IsEmail, IsString, MinLength, IsOptional, IsEnum } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
+
+export enum UserRole {
+  CLIENT = 'CLIENT',
+  ADMIN = 'ADMIN',
+  DELIVERY = 'DELIVERY',
+}
 
 export class RegisterDto {
   @ApiProperty({ example: 'john@example.com' })
@@ -23,6 +29,16 @@ export class RegisterDto {
   @IsOptional()
   @IsString()
   phone?: string;
+
+  @ApiProperty({ 
+    example: 'CLIENT', 
+    enum: UserRole, 
+    description: 'Type d\'utilisateur: CLIENT, ADMIN, ou DELIVERY',
+    required: false 
+  })
+  @IsOptional()
+  @IsEnum(UserRole)
+  role?: UserRole;
 }
 
 export class LoginDto {
@@ -68,4 +84,23 @@ export class VerifyPhoneDto {
   @ApiProperty({ example: '123456' })
   @IsString()
   code: string;
+}
+
+// DTOs spécifiques pour chaque type d'utilisateur
+export class ClientRegisterDto extends RegisterDto {
+  @ApiProperty({ example: 'CLIENT', enum: UserRole })
+  @IsEnum(UserRole)
+  role: UserRole = UserRole.CLIENT;
+}
+
+export class AdminRegisterDto extends RegisterDto {
+  @ApiProperty({ example: 'ADMIN', enum: UserRole })
+  @IsEnum(UserRole)
+  role: UserRole = UserRole.ADMIN;
+}
+
+export class DeliveryRegisterDto extends RegisterDto {
+  @ApiProperty({ example: 'DELIVERY', enum: UserRole })
+  @IsEnum(UserRole)
+  role: UserRole = UserRole.DELIVERY;
 }

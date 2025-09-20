@@ -27,7 +27,7 @@ export class AuthService {
   ) {}
 
   async register(registerDto: RegisterDto) {
-    const { email, firstName, lastName, password, phone } = registerDto;
+    const { email, firstName, lastName, password, phone, role = 'CLIENT' } = registerDto;
 
     // Check if user already exists
     const existingUser = await this.prisma.user.findUnique({
@@ -49,6 +49,7 @@ export class AuthService {
         lastName,
         passwordHash: hashedPassword,
         phone,
+        role: role as any, // Cast to Prisma enum
       },
       select: {
         id: true,
@@ -56,6 +57,7 @@ export class AuthService {
         firstName: true,
         lastName: true,
         phone: true,
+        role: true,
         isEmailVerified: true,
         isPhoneVerified: true,
         createdAt: true,

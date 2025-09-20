@@ -11,6 +11,7 @@ export declare class AddToCartDto {
 }
 export declare class UpdateCartItemDto {
     quantity: number;
+    itemType: CartItemType;
 }
 export declare class ApplyPromoCodeDto {
     code: string;

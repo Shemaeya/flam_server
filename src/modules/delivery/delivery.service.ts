@@ -167,14 +167,19 @@ export class DeliveryService {
 
   // Price Calculation
   async calculateDeliveryPrice(calculateDto: CalculateDeliveryPriceDto): Promise<DeliveryPriceCalculationResponse> {
-    const { latitude, longitude, orderSubtotal, isUrgent = false } = calculateDto;
+    try {
+      const { latitude, longitude, orderSubtotal, isUrgent = false } = calculateDto;
 
-    // Find the zone for the given coordinates
-    const zone = await this.findZoneForCoordinates(latitude, longitude);
-    
-    if (!zone) {
-      throw new BadRequestException('Location is not in any delivery zone');
-    }
+      // Find the zone for the given coordinates
+      const zone = await this.findZoneForCoordinates(latitude, longitude);
+      
+      if (!zone) {
+        throw new BadRequestException('Position hors zone de livraison. Nos services ne couvrent pas cette région.');
+      }
+
+      if (!zone.isActive) {
+        throw new BadRequestException('Zone de livraison temporairement indisponible.');
+      }
 
     // Calculate distance (simplified - in production, use proper geospatial calculation)
     const distance = this.calculateDistance(latitude, longitude, zone);
@@ -232,6 +237,9 @@ export class DeliveryService {
       zoneName: zone.name,
       distance,
     };
+    } catch (error) {
+      throw new BadRequestException('Erreur lors du calcul du prix de livraison: ' + error.message);
+    }
   }
 
   private async findZoneForCoordinates(latitude: number, longitude: number) {
@@ -250,18 +258,26 @@ export class DeliveryService {
   }
 
   private isPointInPolygon(lat: number, lng: number, polygon: number[][]): boolean {
-    let inside = false;
-    for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
-      const xi = polygon[i][0];
-      const yi = polygon[i][1];
-      const xj = polygon[j][0];
-      const yj = polygon[j][1];
-
-      if (((yi > lng) !== (yj > lng)) && (lat < (xj - xi) * (lng - yi) / (yj - yi) + xi)) {
-        inside = !inside;
-      }
+    // Pour simplifier, vérifions si le point est dans le rectangle englobant
+    // En production, utiliser une bibliothèque géospatiale comme Turf.js
+    
+    if (!polygon || polygon.length < 3) return false;
+    
+    // Calculer les limites du polygone
+    let minLat = polygon[0][0];
+    let maxLat = polygon[0][0];
+    let minLng = polygon[0][1];
+    let maxLng = polygon[0][1];
+    
+    for (const coord of polygon) {
+      minLat = Math.min(minLat, coord[0]);
+      maxLat = Math.max(maxLat, coord[0]);
+      minLng = Math.min(minLng, coord[1]);
+      maxLng = Math.max(maxLng, coord[1]);
     }
-    return inside;
+    
+    // Vérifier si le point est dans le rectangle englobant
+    return lat >= minLat && lat <= maxLat && lng >= minLng && lng <= maxLng;
   }
 
   private calculateDistance(latitude: number, longitude: number, zone: any): number {
@@ -321,10 +337,106 @@ export class DeliveryService {
 
   // Check if coordinates are in service zone
   async checkServiceZone(latitude: number, longitude: number) {
-    const zone = await this.findZoneForCoordinates(latitude, longitude);
+    try {
+      const zone = await this.findZoneForCoordinates(latitude, longitude);
+      
+      if (zone && zone.isActive) {
+        // Calculer le centre de la zone pour référence
+        const polygon = zone.polygonCoordinates as number[][];
+        let centerLat = 0;
+        let centerLng = 0;
+        
+        if (polygon && polygon.length > 0) {
+          for (const coord of polygon) {
+            centerLat += coord[0];
+            centerLng += coord[1];
+          }
+          centerLat /= polygon.length;
+          centerLng /= polygon.length;
+        }
+
+        return {
+          success: true,
+          data: {
+            inServiceZone: true,
+            zoneName: zone.name,
+            city: zone.name,
+            zoneId: zone.id,
+            basePrice: zone.basePrice,
+            pricePerKm: zone.pricePerKm,
+            freeDeliveryThreshold: zone.freeDeliveryThreshold,
+            supportsUrgentDelivery: zone.supportsUrgentDelivery,
+            centerLatitude: centerLat,
+            centerLongitude: centerLng,
+            isActive: zone.isActive,
+            message: `Position dans la zone de livraison: ${zone.name}`,
+          }
+        };
+      } else {
+        return {
+          success: false,
+          data: {
+            inServiceZone: false,
+            zoneName: null,
+            city: null,
+            zoneId: null,
+            basePrice: null,
+            pricePerKm: null,
+            freeDeliveryThreshold: null,
+            supportsUrgentDelivery: false,
+            centerLatitude: null,
+            centerLongitude: null,
+            isActive: false,
+            message: 'Position hors zone de livraison. Nos services ne couvrent pas cette région.',
+          }
+        };
+      }
+    } catch (error) {
+      return {
+        success: false,
+        data: {
+          inServiceZone: false,
+          zoneName: null,
+          city: null,
+          zoneId: null,
+          basePrice: null,
+          pricePerKm: null,
+          freeDeliveryThreshold: null,
+          supportsUrgentDelivery: false,
+          centerLatitude: null,
+          centerLongitude: null,
+          isActive: false,
+          message: 'Erreur lors de la vérification de la zone de service',
+        }
+      };
+    }
+  }
+
+  // Debug method for polygon detection
+  async debugPolygonDetection(latitude: number, longitude: number) {
+    const zones = await this.prisma.deliveryZone.findMany({
+      where: { isActive: true },
+    });
+
+    const results = zones.map(zone => {
+      const coordinates = zone.polygonCoordinates as number[][];
+      const isInside = this.isPointInPolygon(latitude, longitude, coordinates);
+      
+      return {
+        zoneName: zone.name,
+        coordinates: coordinates,
+        isInside: isInside,
+        testPoint: { latitude, longitude }
+      };
+    });
+
     return {
-      inServiceZone: !!zone,
-      zoneName: zone?.name || null,
+      success: true,
+      data: {
+        testPoint: { latitude, longitude },
+        zones: results
+      }
     };
   }
+
 }

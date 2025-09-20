@@ -16,6 +16,9 @@ import {
   ResetPasswordDto,
   VerifyEmailDto,
   VerifyPhoneDto,
+  ClientRegisterDto,
+  AdminRegisterDto,
+  DeliveryRegisterDto,
 } from './dto/auth.dto';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 
@@ -25,11 +28,35 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('register')
-  @ApiOperation({ summary: 'Register a new user' })
+  @ApiOperation({ summary: 'Register a new user (generic)' })
   @ApiResponse({ status: 201, description: 'User successfully registered' })
   @ApiResponse({ status: 409, description: 'User already exists' })
   async register(@Body() registerDto: RegisterDto) {
     return this.authService.register(registerDto);
+  }
+
+  @Post('register/client')
+  @ApiOperation({ summary: 'Register a new client' })
+  @ApiResponse({ status: 201, description: 'Client successfully registered' })
+  @ApiResponse({ status: 409, description: 'User already exists' })
+  async registerClient(@Body() clientRegisterDto: ClientRegisterDto) {
+    return this.authService.register(clientRegisterDto);
+  }
+
+  @Post('register/admin')
+  @ApiOperation({ summary: 'Register a new admin' })
+  @ApiResponse({ status: 201, description: 'Admin successfully registered' })
+  @ApiResponse({ status: 409, description: 'User already exists' })
+  async registerAdmin(@Body() adminRegisterDto: AdminRegisterDto) {
+    return this.authService.register(adminRegisterDto);
+  }
+
+  @Post('register/delivery')
+  @ApiOperation({ summary: 'Register a new delivery person' })
+  @ApiResponse({ status: 201, description: 'Delivery person successfully registered' })
+  @ApiResponse({ status: 409, description: 'User already exists' })
+  async registerDelivery(@Body() deliveryRegisterDto: DeliveryRegisterDto) {
+    return this.authService.register(deliveryRegisterDto);
   }
 
   @Post('login')

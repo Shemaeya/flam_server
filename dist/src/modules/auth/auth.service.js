@@ -22,7 +22,7 @@ let AuthService = class AuthService {
         this.configService = configService;
     }
     async register(registerDto) {
-        const { email, firstName, lastName, password, phone } = registerDto;
+        const { email, firstName, lastName, password, phone, role = 'CLIENT' } = registerDto;
         const existingUser = await this.prisma.user.findUnique({
             where: { email },
         });
@@ -37,6 +37,7 @@ let AuthService = class AuthService {
                 lastName,
                 passwordHash: hashedPassword,
                 phone,
+                role: role,
             },
             select: {
                 id: true,
@@ -44,6 +45,7 @@ let AuthService = class AuthService {
                 firstName: true,
                 lastName: true,
                 phone: true,
+                role: true,
                 isEmailVerified: true,
                 isPhoneVerified: true,
                 createdAt: true,

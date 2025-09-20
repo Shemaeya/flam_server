@@ -36,6 +36,10 @@ export class UpdateCartItemDto {
   @IsNumber()
   @Min(1)
   quantity: number;
+
+  @ApiProperty({ enum: CartItemType, example: CartItemType.PURCHASE })
+  @IsEnum(CartItemType)
+  itemType: CartItemType;
 }
 
 export class ApplyPromoCodeDto {

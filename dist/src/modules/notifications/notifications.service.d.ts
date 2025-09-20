@@ -4,10 +4,10 @@ export declare class NotificationsService {
     private prisma;
     constructor(prisma: PrismaService);
     create(createNotificationDto: CreateNotificationDto): Promise<{
-        data: import("@prisma/client/runtime/library").JsonValue | null;
         id: string;
         createdAt: Date;
         updatedAt: Date;
+        data: import("@prisma/client/runtime/library").JsonValue | null;
         type: import(".prisma/client").$Enums.NotificationType;
         userId: string;
         title: string;
@@ -16,10 +16,10 @@ export declare class NotificationsService {
     }>;
     findAll(userId: string, query: NotificationQueryDto): Promise<{
         notifications: {
-            data: import("@prisma/client/runtime/library").JsonValue | null;
             id: string;
             createdAt: Date;
             updatedAt: Date;
+            data: import("@prisma/client/runtime/library").JsonValue | null;
             type: import(".prisma/client").$Enums.NotificationType;
             userId: string;
             title: string;
@@ -34,10 +34,10 @@ export declare class NotificationsService {
         };
     }>;
     findOne(id: string, userId: string): Promise<{
-        data: import("@prisma/client/runtime/library").JsonValue | null;
         id: string;
         createdAt: Date;
         updatedAt: Date;
+        data: import("@prisma/client/runtime/library").JsonValue | null;
         type: import(".prisma/client").$Enums.NotificationType;
         userId: string;
         title: string;
@@ -45,10 +45,10 @@ export declare class NotificationsService {
         isRead: boolean;
     }>;
     update(id: string, userId: string, updateNotificationDto: UpdateNotificationDto): Promise<{
-        data: import("@prisma/client/runtime/library").JsonValue | null;
         id: string;
         createdAt: Date;
         updatedAt: Date;
+        data: import("@prisma/client/runtime/library").JsonValue | null;
         type: import(".prisma/client").$Enums.NotificationType;
         userId: string;
         title: string;
@@ -56,10 +56,10 @@ export declare class NotificationsService {
         isRead: boolean;
     }>;
     markAsRead(id: string, userId: string): Promise<{
-        data: import("@prisma/client/runtime/library").JsonValue | null;
         id: string;
         createdAt: Date;
         updatedAt: Date;
+        data: import("@prisma/client/runtime/library").JsonValue | null;
         type: import(".prisma/client").$Enums.NotificationType;
         userId: string;
         title: string;
@@ -77,10 +77,10 @@ export declare class NotificationsService {
         unreadCount: number;
     }>;
     createOrderNotification(userId: string, orderId: string, orderNumber: string, status: string): Promise<{
-        data: import("@prisma/client/runtime/library").JsonValue | null;
         id: string;
         createdAt: Date;
         updatedAt: Date;
+        data: import("@prisma/client/runtime/library").JsonValue | null;
         type: import(".prisma/client").$Enums.NotificationType;
         userId: string;
         title: string;
@@ -88,10 +88,10 @@ export declare class NotificationsService {
         isRead: boolean;
     }>;
     createPromotionNotification(userId: string, title: string, message: string, data?: any): Promise<{
-        data: import("@prisma/client/runtime/library").JsonValue | null;
         id: string;
         createdAt: Date;
         updatedAt: Date;
+        data: import("@prisma/client/runtime/library").JsonValue | null;
         type: import(".prisma/client").$Enums.NotificationType;
         userId: string;
         title: string;
@@ -99,10 +99,10 @@ export declare class NotificationsService {
         isRead: boolean;
     }>;
     createSystemNotification(userId: string, title: string, message: string, data?: any): Promise<{
-        data: import("@prisma/client/runtime/library").JsonValue | null;
         id: string;
         createdAt: Date;
         updatedAt: Date;
+        data: import("@prisma/client/runtime/library").JsonValue | null;
         type: import(".prisma/client").$Enums.NotificationType;
         userId: string;
         title: string;

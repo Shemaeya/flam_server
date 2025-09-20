@@ -42,8 +42,9 @@ export class CartController {
   }
 
   @Patch('items/:itemId')
-  @ApiOperation({ summary: 'Update cart item quantity' })
+  @ApiOperation({ summary: 'Update cart item quantity and type' })
   @ApiResponse({ status: 200, description: 'Cart item updated successfully' })
+  @ApiResponse({ status: 404, description: 'Cart item not found with specified type' })
   async updateCartItem(
     @Request() req,
     @Param('itemId') itemId: string,

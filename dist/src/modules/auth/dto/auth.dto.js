@@ -9,9 +9,15 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.VerifyPhoneDto = exports.VerifyEmailDto = exports.ResetPasswordDto = exports.ForgotPasswordDto = exports.RefreshTokenDto = exports.LoginDto = exports.RegisterDto = void 0;
+exports.DeliveryRegisterDto = exports.AdminRegisterDto = exports.ClientRegisterDto = exports.VerifyPhoneDto = exports.VerifyEmailDto = exports.ResetPasswordDto = exports.ForgotPasswordDto = exports.RefreshTokenDto = exports.LoginDto = exports.RegisterDto = exports.UserRole = void 0;
 const class_validator_1 = require("class-validator");
 const swagger_1 = require("@nestjs/swagger");
+var UserRole;
+(function (UserRole) {
+    UserRole["CLIENT"] = "CLIENT";
+    UserRole["ADMIN"] = "ADMIN";
+    UserRole["DELIVERY"] = "DELIVERY";
+})(UserRole || (exports.UserRole = UserRole = {}));
 class RegisterDto {
 }
 exports.RegisterDto = RegisterDto;
@@ -42,6 +48,17 @@ __decorate([
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
 ], RegisterDto.prototype, "phone", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({
+        example: 'CLIENT',
+        enum: UserRole,
+        description: 'Type d\'utilisateur: CLIENT, ADMIN, ou DELIVERY',
+        required: false
+    }),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsEnum)(UserRole),
+    __metadata("design:type", String)
+], RegisterDto.prototype, "role", void 0);
 class LoginDto {
 }
 exports.LoginDto = LoginDto;
@@ -101,4 +118,40 @@ __decorate([
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
 ], VerifyPhoneDto.prototype, "code", void 0);
+class ClientRegisterDto extends RegisterDto {
+    constructor() {
+        super(...arguments);
+        this.role = UserRole.CLIENT;
+    }
+}
+exports.ClientRegisterDto = ClientRegisterDto;
+__decorate([
+    (0, swagger_1.ApiProperty)({ example: 'CLIENT', enum: UserRole }),
+    (0, class_validator_1.IsEnum)(UserRole),
+    __metadata("design:type", String)
+], ClientRegisterDto.prototype, "role", void 0);
+class AdminRegisterDto extends RegisterDto {
+    constructor() {
+        super(...arguments);
+        this.role = UserRole.ADMIN;
+    }
+}
+exports.AdminRegisterDto = AdminRegisterDto;
+__decorate([
+    (0, swagger_1.ApiProperty)({ example: 'ADMIN', enum: UserRole }),
+    (0, class_validator_1.IsEnum)(UserRole),
+    __metadata("design:type", String)
+], AdminRegisterDto.prototype, "role", void 0);
+class DeliveryRegisterDto extends RegisterDto {
+    constructor() {
+        super(...arguments);
+        this.role = UserRole.DELIVERY;
+    }
+}
+exports.DeliveryRegisterDto = DeliveryRegisterDto;
+__decorate([
+    (0, swagger_1.ApiProperty)({ example: 'DELIVERY', enum: UserRole }),
+    (0, class_validator_1.IsEnum)(UserRole),
+    __metadata("design:type", String)
+], DeliveryRegisterDto.prototype, "role", void 0);
 //# sourceMappingURL=auth.dto.js.map

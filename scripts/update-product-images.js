@@ -5,7 +5,7 @@ const fs = require('fs');
 const prisma = new PrismaClient();
 
 // Configuration des images
-const BASE_URL = process.env.BASE_URL || 'http://localhost:3000';
+const BASE_URL = process.env.BASE_URL || 'http://192.168.1.4:3000';
 const IMAGES_PATH = path.join(__dirname, '../public/images');
 
 // Mapping des catégories vers les images disponibles

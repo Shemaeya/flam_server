@@ -74,8 +74,9 @@ __decorate([
 ], CartController.prototype, "addToCart", null);
 __decorate([
     (0, common_1.Patch)('items/:itemId'),
-    (0, swagger_1.ApiOperation)({ summary: 'Update cart item quantity' }),
+    (0, swagger_1.ApiOperation)({ summary: 'Update cart item quantity and type' }),
     (0, swagger_1.ApiResponse)({ status: 200, description: 'Cart item updated successfully' }),
+    (0, swagger_1.ApiResponse)({ status: 404, description: 'Cart item not found with specified type' }),
     __param(0, (0, common_1.Request)()),
     __param(1, (0, common_1.Param)('itemId')),
     __param(2, (0, common_1.Body)()),

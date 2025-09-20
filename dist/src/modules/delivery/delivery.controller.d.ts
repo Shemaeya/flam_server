@@ -128,7 +128,54 @@ export declare class DeliveryController {
     }>;
     calculateDeliveryPrice(calculateDto: CalculateDeliveryPriceDto): Promise<import("./dto/delivery.dto").DeliveryPriceCalculationResponse>;
     checkServiceZone(latitude: number, longitude: number): Promise<{
-        inServiceZone: boolean;
-        zoneName: string;
+        success: boolean;
+        data: {
+            inServiceZone: boolean;
+            zoneName: string;
+            city: string;
+            zoneId: string;
+            basePrice: import("@prisma/client/runtime/library").Decimal;
+            pricePerKm: import("@prisma/client/runtime/library").Decimal;
+            freeDeliveryThreshold: import("@prisma/client/runtime/library").Decimal;
+            supportsUrgentDelivery: boolean;
+            centerLatitude: number;
+            centerLongitude: number;
+            isActive: true;
+            message: string;
+        };
+    } | {
+        success: boolean;
+        data: {
+            inServiceZone: boolean;
+            zoneName: any;
+            city: any;
+            zoneId: any;
+            basePrice: any;
+            pricePerKm: any;
+            freeDeliveryThreshold: any;
+            supportsUrgentDelivery: boolean;
+            centerLatitude: any;
+            centerLongitude: any;
+            isActive: boolean;
+            message: string;
+        };
+    }>;
+    debugPolygon(latitude: number, longitude: number): Promise<{
+        success: boolean;
+        data: {
+            testPoint: {
+                latitude: number;
+                longitude: number;
+            };
+            zones: {
+                zoneName: string;
+                coordinates: number[][];
+                isInside: boolean;
+                testPoint: {
+                    latitude: number;
+                    longitude: number;
+                };
+            }[];
+        };
     }>;
 }

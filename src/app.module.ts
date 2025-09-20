@@ -12,6 +12,7 @@ import { DeliveryModule } from './modules/delivery/delivery.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
 import { ReviewsModule } from './modules/reviews/reviews.module';
 import { CartModule } from './modules/cart/cart.module';
+import { CurrencyModule } from './modules/currency/currency.module';
 import { AllExceptionsFilter } from './common/filters/http-exception.filter';
 import { ResponseInterceptor } from './common/interceptors/response.interceptor';
 
@@ -30,6 +31,7 @@ import { ResponseInterceptor } from './common/interceptors/response.interceptor'
     NotificationsModule,
     ReviewsModule,
     CartModule,
+    CurrencyModule,
   ],
   controllers: [HealthController],
   providers: [

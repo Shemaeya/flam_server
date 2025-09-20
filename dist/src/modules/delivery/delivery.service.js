@@ -134,45 +134,53 @@ let DeliveryService = class DeliveryService {
         return { message: 'Pricing rule deleted successfully' };
     }
     async calculateDeliveryPrice(calculateDto) {
-        const { latitude, longitude, orderSubtotal, isUrgent = false } = calculateDto;
-        const zone = await this.findZoneForCoordinates(latitude, longitude);
-        if (!zone) {
-            throw new common_1.BadRequestException('Location is not in any delivery zone');
+        try {
+            const { latitude, longitude, orderSubtotal, isUrgent = false } = calculateDto;
+            const zone = await this.findZoneForCoordinates(latitude, longitude);
+            if (!zone) {
+                throw new common_1.BadRequestException('Position hors zone de livraison. Nos services ne couvrent pas cette région.');
+            }
+            if (!zone.isActive) {
+                throw new common_1.BadRequestException('Zone de livraison temporairement indisponible.');
+            }
+            const distance = this.calculateDistance(latitude, longitude, zone);
+            const now = new Date();
+            const dayOfWeek = now.getDay() === 0 ? 7 : now.getDay();
+            const hour = now.getHours();
+            const pricingRules = await this.prisma.deliveryPricingRule.findMany({
+                where: {
+                    zoneId: zone.id,
+                    dayOfWeek,
+                    startHour: { lte: hour },
+                    endHour: { gt: hour },
+                    isUrgent,
+                },
+            });
+            const timeMultiplier = this.calculateTimeMultiplier(pricingRules, dayOfWeek, hour);
+            const urgentMultiplier = isUrgent ? 1.5 : 1.0;
+            const basePrice = Number(zone.basePrice);
+            const distancePrice = distance * Number(zone.pricePerKm);
+            const subtotal = basePrice + distancePrice;
+            const totalPrice = subtotal * timeMultiplier * urgentMultiplier;
+            const freeDeliveryThreshold = zone.freeDeliveryThreshold ? Number(zone.freeDeliveryThreshold) : null;
+            const isFreeDelivery = freeDeliveryThreshold && orderSubtotal >= freeDeliveryThreshold;
+            const finalPrice = isFreeDelivery ? 0 : totalPrice;
+            const calculationDetails = this.buildCalculationDetails(basePrice, distancePrice, timeMultiplier, urgentMultiplier, isFreeDelivery);
+            return {
+                basePrice,
+                distancePrice,
+                timeMultiplier,
+                urgentMultiplier,
+                totalPrice: finalPrice,
+                isFreeDelivery,
+                calculationDetails,
+                zoneName: zone.name,
+                distance,
+            };
         }
-        const distance = this.calculateDistance(latitude, longitude, zone);
-        const now = new Date();
-        const dayOfWeek = now.getDay() === 0 ? 7 : now.getDay();
-        const hour = now.getHours();
-        const pricingRules = await this.prisma.deliveryPricingRule.findMany({
-            where: {
-                zoneId: zone.id,
-                dayOfWeek,
-                startHour: { lte: hour },
-                endHour: { gt: hour },
-                isUrgent,
-            },
-        });
-        const timeMultiplier = this.calculateTimeMultiplier(pricingRules, dayOfWeek, hour);
-        const urgentMultiplier = isUrgent ? 1.5 : 1.0;
-        const basePrice = Number(zone.basePrice);
-        const distancePrice = distance * Number(zone.pricePerKm);
-        const subtotal = basePrice + distancePrice;
-        const totalPrice = subtotal * timeMultiplier * urgentMultiplier;
-        const freeDeliveryThreshold = zone.freeDeliveryThreshold ? Number(zone.freeDeliveryThreshold) : null;
-        const isFreeDelivery = freeDeliveryThreshold && orderSubtotal >= freeDeliveryThreshold;
-        const finalPrice = isFreeDelivery ? 0 : totalPrice;
-        const calculationDetails = this.buildCalculationDetails(basePrice, distancePrice, timeMultiplier, urgentMultiplier, isFreeDelivery);
-        return {
-            basePrice,
-            distancePrice,
-            timeMultiplier,
-            urgentMultiplier,
-            totalPrice: finalPrice,
-            isFreeDelivery,
-            calculationDetails,
-            zoneName: zone.name,
-            distance,
-        };
+        catch (error) {
+            throw new common_1.BadRequestException('Erreur lors du calcul du prix de livraison: ' + error.message);
+        }
     }
     async findZoneForCoordinates(latitude, longitude) {
         const zones = await this.prisma.deliveryZone.findMany({
@@ -187,17 +195,19 @@ let DeliveryService = class DeliveryService {
         return null;
     }
     isPointInPolygon(lat, lng, polygon) {
-        let inside = false;
-        for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
-            const xi = polygon[i][0];
-            const yi = polygon[i][1];
-            const xj = polygon[j][0];
-            const yj = polygon[j][1];
-            if (((yi > lng) !== (yj > lng)) && (lat < (xj - xi) * (lng - yi) / (yj - yi) + xi)) {
-                inside = !inside;
-            }
+        if (!polygon || polygon.length < 3)
+            return false;
+        let minLat = polygon[0][0];
+        let maxLat = polygon[0][0];
+        let minLng = polygon[0][1];
+        let maxLng = polygon[0][1];
+        for (const coord of polygon) {
+            minLat = Math.min(minLat, coord[0]);
+            maxLat = Math.max(maxLat, coord[0]);
+            minLng = Math.min(minLng, coord[1]);
+            maxLng = Math.max(maxLng, coord[1]);
         }
-        return inside;
+        return lat >= minLat && lat <= maxLat && lng >= minLng && lng <= maxLng;
     }
     calculateDistance(latitude, longitude, zone) {
         return Math.random() * 9 + 1;
@@ -237,10 +247,98 @@ let DeliveryService = class DeliveryService {
         return details.join(', ');
     }
     async checkServiceZone(latitude, longitude) {
-        const zone = await this.findZoneForCoordinates(latitude, longitude);
+        try {
+            const zone = await this.findZoneForCoordinates(latitude, longitude);
+            if (zone && zone.isActive) {
+                const polygon = zone.polygonCoordinates;
+                let centerLat = 0;
+                let centerLng = 0;
+                if (polygon && polygon.length > 0) {
+                    for (const coord of polygon) {
+                        centerLat += coord[0];
+                        centerLng += coord[1];
+                    }
+                    centerLat /= polygon.length;
+                    centerLng /= polygon.length;
+                }
+                return {
+                    success: true,
+                    data: {
+                        inServiceZone: true,
+                        zoneName: zone.name,
+                        city: zone.name,
+                        zoneId: zone.id,
+                        basePrice: zone.basePrice,
+                        pricePerKm: zone.pricePerKm,
+                        freeDeliveryThreshold: zone.freeDeliveryThreshold,
+                        supportsUrgentDelivery: zone.supportsUrgentDelivery,
+                        centerLatitude: centerLat,
+                        centerLongitude: centerLng,
+                        isActive: zone.isActive,
+                        message: `Position dans la zone de livraison: ${zone.name}`,
+                    }
+                };
+            }
+            else {
+                return {
+                    success: false,
+                    data: {
+                        inServiceZone: false,
+                        zoneName: null,
+                        city: null,
+                        zoneId: null,
+                        basePrice: null,
+                        pricePerKm: null,
+                        freeDeliveryThreshold: null,
+                        supportsUrgentDelivery: false,
+                        centerLatitude: null,
+                        centerLongitude: null,
+                        isActive: false,
+                        message: 'Position hors zone de livraison. Nos services ne couvrent pas cette région.',
+                    }
+                };
+            }
+        }
+        catch (error) {
+            return {
+                success: false,
+                data: {
+                    inServiceZone: false,
+                    zoneName: null,
+                    city: null,
+                    zoneId: null,
+                    basePrice: null,
+                    pricePerKm: null,
+                    freeDeliveryThreshold: null,
+                    supportsUrgentDelivery: false,
+                    centerLatitude: null,
+                    centerLongitude: null,
+                    isActive: false,
+                    message: 'Erreur lors de la vérification de la zone de service',
+                }
+            };
+        }
+    }
+    async debugPolygonDetection(latitude, longitude) {
+        const zones = await this.prisma.deliveryZone.findMany({
+            where: { isActive: true },
+        });
+        const results = zones.map(zone => {
+            const coordinates = zone.polygonCoordinates;
+            const isInside = this.isPointInPolygon(latitude, longitude, coordinates);
+            return {
+                zoneName: zone.name,
+                coordinates: coordinates,
+                isInside: isInside,
+                testPoint: { latitude, longitude }
+            };
+        });
         return {
-            inServiceZone: !!zone,
-            zoneName: zone?.name || null,
+            success: true,
+            data: {
+                testPoint: { latitude, longitude },
+                zones: results
+            }
         };
     }
 };
